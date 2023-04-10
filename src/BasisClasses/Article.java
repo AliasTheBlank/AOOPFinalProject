@@ -16,6 +16,7 @@ public class Article {
 	private String[] keywords;
 	private String doi;
 	private String month;
+	private String ISSN;
 	
 	/**
 	 * @param id
@@ -30,7 +31,7 @@ public class Article {
 	 * @param doi
 	 */
 	public Article(int id, String[] author, String journal, String title, int year, String volume, int number, String pages,
-			String doi, String month,String ... keywords) {
+			String doi, String month, String ISSN,String ... keywords) {
 		this.id = id;
 		this.author = author;
 		this.journal = journal;
@@ -40,6 +41,7 @@ public class Article {
 		this.number = number;
 		this.pages = pages;
 		this.keywords = new String[keywords.length];
+		this.ISSN = ISSN;
 		
 		for (int i = 0; i < keywords.length; i++) 
 			this.keywords[i] = keywords[i];
@@ -63,7 +65,7 @@ public class Article {
 	 * @param doi
 	 */
 	public Article(int id, String[] author, String journal, String title, int year, String volume, int number, String pages,
-			String[] keywords, String doi, String month) {
+			String[] keywords, String doi, String month, String ISSN) {
 		this.id = id;
 		this.author = author;
 		this.journal = journal;
@@ -75,6 +77,7 @@ public class Article {
 		this.keywords = keywords;
 		this.doi = doi;
 		this.month = month;
+		this.ISSN = ISSN;
 	}
 	
 	public String Format(FormatType type) {
@@ -85,8 +88,8 @@ public class Article {
 				StringBuilder string = new StringBuilder();
 				
 				
-				string.append(listAuthors(','));
-				string.append(". " + String.format("\"%i\"", title));
+				string.append(listAuthors(","));
+				string.append(". " + String.format("\"%s\"", title));
 				string.append(", " + journal);
 				string.append(", vol. " + volume);
 				string.append(", no. " + String.valueOf(number));
@@ -110,7 +113,7 @@ public class Article {
 				acmString.append(". " + title);
 				acmString.append(". " + journal);
 				acmString.append(". PP, " + number);
-				acmString.append(String.format(" (%i)", year));
+				acmString.append(String.format(" (%d)", year));
 				acmString.append(", " + pages);
 				acmString.append(". DOI:" + doiLink + doi);
 				
@@ -120,12 +123,12 @@ public class Article {
 			case NJ: {
 				
 				StringBuilder njString = new StringBuilder();
-				njString.append(listAuthors('&'));
+				njString.append(listAuthors(" &"));
 				njString.append(". " + title);
 				njString.append(". " + journal);
 				njString.append(". " + volume);
 				njString.append(", " + pages);
-				njString.append(String.format("(%i)." , year));
+				njString.append(String.format("(%d)." , year));
 				
 				return new String(njString);
 			}
@@ -136,7 +139,7 @@ public class Article {
 			}
 		}
 	
-	private String listAuthors(char delimiter) {
+	private String listAuthors(String delimiter) {
 		
 		StringBuilder string = new StringBuilder();
 		

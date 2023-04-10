@@ -12,11 +12,12 @@ public class KeyToken implements IToken {
 
 	public static IToken match(String rawToken, Stack<IToken> tokenStack, Stack<Boolean> bracketStack, String nextRawToken) {
 		
+		
 		if (nextRawToken.equals("=") && 
-			!tokenStack.isEmpty() && 
+			!tokenStack.empty() && 
 			tokenStack.peek().GetTokenType() == TokenType.Separator &&
 			bracketStack.size() == 1) {
-			
+			return new KeyToken(rawToken.toLowerCase());
 		}
 		
 		return null;

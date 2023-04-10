@@ -1,4 +1,4 @@
-package BasisClasses.BibParser.Tokens;
+package BasisClasses.BibParser;
 
 import java.util.StringTokenizer;
 
@@ -10,6 +10,6 @@ public class BibCreator {
 	//TODO
 	public void processFilesForValidation(String file) throws FileInvalidException {
 		
-		StringTokenizer st = StringTokenize
+		
 	}
 }

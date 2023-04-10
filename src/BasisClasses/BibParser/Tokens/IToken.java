@@ -4,7 +4,7 @@ public interface IToken {
 	
 	public TokenType GetTokenType();
 	public String GetTokenMatch();
-	public String GetValue();
+	public String GetValue() ;
 	
 	
 }
