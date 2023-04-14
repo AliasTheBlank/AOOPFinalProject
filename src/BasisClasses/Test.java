@@ -25,7 +25,7 @@ public class Test {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
-		Scanner scanner = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex10.bib"));
+		Scanner scanner = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex1.bib"));
 		
 		StringBuilder myStringBuiilder = new StringBuilder();
 		
