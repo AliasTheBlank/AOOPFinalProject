@@ -2,72 +2,61 @@ package BasisClasses.BibParser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 import BasisClasses.FileInvalidException;
+import BasisClasses.BibParser.Tokens.IToken;
 
 public class BibCreator {
 
 	public static void main(String[] args) {
 		
-		System.out.println("Welcome to BibCreator!");
+		System.out.println("Welcome to BibCreator!\n");
 		
-		Scanner scanner1;
-		Scanner scanner2;
-		Scanner scanner3;
-		Scanner scanner4;
-		Scanner scanner5;
-		Scanner scanner6;
-		Scanner scanner7;
-		Scanner scanner8;
-		Scanner scanner9;
-		Scanner scanner10;
-		
-		StringBuilder[] sb = new StringBuilder[10];
-		
-		try {
-			scanner1 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex.bib"));
-			sb[0] = catchData(scanner1);
-			
-			scanner2 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex2.bib"));
-			sb[1] = catchData(scanner2);
-			
-			scanner3 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex3.bib"));
-			sb[2] = catchData(scanner3);
-			
-			scanner4 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex4.bib"));
-			sb[3] = catchData(scanner4);
-			
-			scanner5 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex5.bib"));
-			sb[4] = catchData(scanner5);
-			
-			scanner6 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex6.bib"));
-			sb[5] = catchData(scanner6);
-			
-			scanner7 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex7.bib"));
-			sb[6] = catchData(scanner7);
-			
-			scanner8 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex8.bib"));
-			sb[7] = catchData(scanner8);
-			
-			scanner9 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex9.bib"));
-			sb[8] = catchData(scanner9);
-			
-			scanner10 = new Scanner(new FileInputStream("./Final_Project_420-PA3-AS/Latex10.bib"));
-			sb[9] = catchData(scanner10);
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e.getMessage());
+		String[] myUserProvidedPaths = new String[10];
+		myUserProvidedPaths[0] = "Latex1.bib";
+		myUserProvidedPaths[1] = "Latex2.bib";
+		myUserProvidedPaths[2] = "Latex3.bib";
+		myUserProvidedPaths[3] = "Latex4.bib";
+		myUserProvidedPaths[4] = "Latex5.bib";
+		myUserProvidedPaths[5] = "Latex6.bib";
+		myUserProvidedPaths[6] = "Latex7.bib";
+		myUserProvidedPaths[7] = "Latex8.bib";
+		myUserProvidedPaths[8] = "Latex9.bib";
+		myUserProvidedPaths[9] = "Latex10.bib";
+
+		StringBuilder[] sb = new StringBuilder[myUserProvidedPaths.length];
+
+
+		for(int i = 0; i < myUserProvidedPaths.length; i++) {
+		  Scanner scanner;
+		  try {
+		    scanner = new Scanner(new FileInputStream(myUserProvidedPaths[i]));
+		    sb[i] = catchData(scanner);
+		  } catch (Exception e) {
+		    System.out.printf("""
+		    		Could not open input file %s for reading.
+		    		
+		    		Please check if file exist! Program will terminate after closing any opened files.
+		    		""", myUserProvidedPaths[i]);
+		  }
 		}
 		
 	}
 	
 	//TODO
-	public static void processFilesForValidation(String file) throws FileInvalidException {
+	public static void processFilesForValidation(String file) {
 		
-		
+		String delim = "{},=\n";
+        StringTokenizer st = new StringTokenizer(file, delim, true);
+
+        Stack<IToken> tokenStack = new Stack<IToken>();
+        Stack<Boolean> bracketStack = new Stack<Boolean>();
+
+        HashMap<String, HashMap<String, String>> rawData = new HashMap<String, HashMap<String, String>>();
 	}
 	
 	public static StringBuilder catchData(Scanner file) {
