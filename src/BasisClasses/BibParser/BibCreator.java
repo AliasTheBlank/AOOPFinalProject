@@ -8,7 +8,16 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import BasisClasses.FileInvalidException;
+import BasisClasses.BibParser.Tokens.ArticleToken;
+import BasisClasses.BibParser.Tokens.AssignToken;
+import BasisClasses.BibParser.Tokens.CloseBracketToken;
+import BasisClasses.BibParser.Tokens.IDToken;
 import BasisClasses.BibParser.Tokens.IToken;
+import BasisClasses.BibParser.Tokens.KeyToken;
+import BasisClasses.BibParser.Tokens.OpenBracketToken;
+import BasisClasses.BibParser.Tokens.SeparatorToken;
+import BasisClasses.BibParser.Tokens.TokenType;
+import BasisClasses.BibParser.Tokens.ValueToken;
 
 public class BibCreator {
 
@@ -45,18 +54,138 @@ public class BibCreator {
 		  }
 		}
 		
+		
+		try {
+			HashMap<String, HashMap<String, String>> data = processFilesForValidation(new String(sb[1]));
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			System.out.println(e.getMessage());
+		}
 	}
 	
+	
 	//TODO
-	public static void processFilesForValidation(String file) {
+	public static HashMap<String, HashMap<String, String>> processFilesForValidation(String file) throws FileInvalidException {
 		
 		String delim = "{},=\n";
         StringTokenizer st = new StringTokenizer(file, delim, true);
 
         Stack<IToken> tokenStack = new Stack<IToken>();
         Stack<Boolean> bracketStack = new Stack<Boolean>();
-
+        
         HashMap<String, HashMap<String, String>> rawData = new HashMap<String, HashMap<String, String>>();
+        
+        String tempToken = null;
+        
+        String id = null;
+        String interimKey = null;
+        
+        while (st.hasMoreTokens() || tempToken != null) {
+        	String nextToken = (tempToken != null ? tempToken : st.nextToken()).strip();
+        	tempToken = null;
+        	
+        	// Ignore whitespace
+        	if (nextToken == null || nextToken.isEmpty() || nextToken.equals("\n")) continue;
+        	
+        	
+        	if (processArticleToken(nextToken, tokenStack)) {
+        		continue;
+        	}
+        	
+        	IToken idToken = IDToken.match(nextToken, tokenStack);
+        	if (idToken != null) {
+        		tokenStack.push(idToken);
+        		id = idToken.GetValue();
+        		
+        		rawData.put(id, new HashMap<String, String>());
+        		continue;
+        	}
+        
+        	IToken openBracket = OpenBracketToken.match(nextToken, tokenStack);
+        	if (openBracket != null) {
+        			
+        			
+        		tokenStack.push(openBracket);
+        		bracketStack.push(true);
+        		
+        			
+        		continue;
+        	}
+        	
+        	IToken closeBracket = CloseBracketToken.match(nextToken, bracketStack);
+        	if (closeBracket != null) {
+        		
+					if (tokenStack.peek().GetTokenType() == TokenType.OpenBracket)
+						 throw new FileInvalidException("No value for key");
+					
+        		bracketStack.pop();
+        		tokenStack.push(closeBracket);
+        		
+        		
+        		if (bracketStack.empty()) {
+        			tokenStack =  new Stack<IToken>();
+        			id = null;
+        		}
+        		
+
+        		continue;
+        	}
+        	
+        	
+        	IToken assingToken = AssignToken.match(nextToken, tokenStack);
+        	if (assingToken != null) {
+        		tokenStack.push(assingToken);
+        		continue;
+        	}
+        	
+        	IToken separatorToken = SeparatorToken.match(nextToken, tokenStack);
+        	if (separatorToken != null) {
+        		tokenStack.push(separatorToken);
+        		
+        		continue;
+        	}
+        	
+        	ValueToken valueToken = ValueToken.match(nextToken, tokenStack);
+        	if (valueToken != null) {
+        		
+        		StringBuilder sb = new StringBuilder();
+        		sb.append(nextToken);
+        		while  (st.hasMoreTokens()) {
+        			tempToken = st.nextToken();
+        			if (tempToken.equals("}")) {
+        				break;
+        			}
+        			sb.append(tempToken);
+        		}
+        		
+        		valueToken.UpdateValue(new String(sb));
+        		tokenStack.push(valueToken);
+        	
+        		if (interimKey == null) {
+        			throw new FileInvalidException("Ruh roh");
+        		}
+        		
+        		rawData.get(id).put(interimKey, valueToken.GetValue());
+        		interimKey = null;
+        		
+        		continue;
+        	}
+        	
+        	if(st.hasMoreTokens()) {
+	        	tempToken = st.nextToken().strip();
+	        	IToken keyToken = KeyToken.match(nextToken, tokenStack, bracketStack, tempToken);
+	        	if (keyToken != null) {
+	        		tokenStack.push(keyToken);
+	        		interimKey = keyToken.GetValue();
+	        		continue;
+	        	}
+        	}	
+        	
+        	throw new FileInvalidException("Unexpected token: " + nextToken);
+        }
+        
+        return rawData;
 	}
 	
 	public static StringBuilder catchData(Scanner file) {
@@ -69,5 +198,15 @@ public class BibCreator {
 		file.close();
 		
 		return sb;
+	}
+	
+	public static Boolean processArticleToken(String nextToken, Stack<IToken> tokenStack) {
+		IToken articleToken = ArticleToken.match(nextToken, tokenStack);
+		if (articleToken != null) {
+			tokenStack.push(articleToken);
+			return true;
+		}
+		
+		return false;
 	}
 }
