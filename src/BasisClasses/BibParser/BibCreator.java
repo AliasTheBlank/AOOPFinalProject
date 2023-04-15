@@ -2,12 +2,17 @@ package BasisClasses.BibParser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import BasisClasses.Article;
 import BasisClasses.FileInvalidException;
+import BasisClasses.FormatType;
 import BasisClasses.BibParser.Tokens.ArticleToken;
 import BasisClasses.BibParser.Tokens.AssignToken;
 import BasisClasses.BibParser.Tokens.CloseBracketToken;
@@ -54,19 +59,20 @@ public class BibCreator {
 		  }
 		}
 		
-		
-		try {
-			HashMap<String, HashMap<String, String>> data = processFilesForValidation(new String(sb[1]));
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e.getMessage());
+		for (int i = 0; i < myUserProvidedPaths.length; i++) {
+			try {
+				processFilesForValidation(new String(sb[i]), i);
+			}
+			catch (Exception e) {
+				// TODO: handle exception
+				System.out.println(e.getMessage());
+			}
 		}
 	}
 	
 	
 	//TODO
-	public static HashMap<String, HashMap<String, String>> processFilesForValidation(String file) throws FileInvalidException {
+	public static void processFilesForValidation(String file, int number) throws Exception {
 		
 		String delim = "{},=\n";
         StringTokenizer st = new StringTokenizer(file, delim, true);
@@ -185,7 +191,58 @@ public class BibCreator {
         	throw new FileInvalidException("Unexpected token: " + nextToken);
         }
         
-        return rawData;
+        List<Article> listOfArticles = new ArrayList<Article>();
+
+        rawData.forEach((key, value) -> { 
+        	
+        	HashMap<String, String> ArticleMap = value;
+        	String[] authors = ArticleMap.get("author").split("and");
+        	for (int i = 0; i < authors.length; i++) {
+				authors[i] = authors[i].strip();
+			}
+        	String[] keywords = ArticleMap.get("keywords").split(";");
+        	
+        	listOfArticles.add(new Article(
+        			Integer.valueOf(key),
+        			authors,
+        			ArticleMap.get("journal"),
+        			ArticleMap.get("title"),
+        			Integer.valueOf(ArticleMap.get("year")),
+        			ArticleMap.get("volume"), 
+        			Integer.valueOf(ArticleMap.get("number")), 
+        			ArticleMap.get("pages"),
+        			keywords,
+        			ArticleMap.get("doi"),
+        			ArticleMap.get("month"),
+        			ArticleMap.get("issn")));
+        });
+        
+        String[] files = {String.format("IEEE%d.json", number), String.format("ACM%d.json", number), String.format("NJ%d.json", number)};
+        PrintWriter pw1 = new PrintWriter(files[0]);
+        
+        for (Article article : listOfArticles) {
+			pw1.append(article.Format(FormatType.IEEE) +  "\n\n");
+		}
+        System.out.println();
+        
+        PrintWriter pw2 = new PrintWriter(files[1]);
+        
+        int counter = 0;
+        for (Article article : listOfArticles) {
+			pw2.append("[" + counter + "] " + article.Format(FormatType.ACM)  + "\n\n");
+			
+		}
+        
+        System.out.println();
+        PrintWriter pw3 = new PrintWriter(files[2]);
+        
+        for (Article article : listOfArticles) {
+			pw3.append(article.Format(FormatType.NJ) + "\n\n");
+		}
+        
+        pw1.close();
+        pw2.close();
+        pw3.close();
 	}
 	
 	public static StringBuilder catchData(Scanner file) {
