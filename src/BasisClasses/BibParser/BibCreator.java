@@ -61,7 +61,7 @@ public class BibCreator {
 		
 		for (int i = 0; i < myUserProvidedPaths.length; i++) {
 			try {
-				processFilesForValidation(new String(sb[i]), i);
+				processFilesForValidation(new String(sb[i]), i, myUserProvidedPaths[i]);
 			}
 			catch (Exception e) {
 				// TODO: handle exception
@@ -72,7 +72,7 @@ public class BibCreator {
 	
 	
 	//TODO
-	public static void processFilesForValidation(String file, int number) throws Exception {
+	public static void processFilesForValidation(String file, int number, String fileName) throws Exception {
 		
 		String delim = "{},=\n";
         StringTokenizer st = new StringTokenizer(file, delim, true);
@@ -123,7 +123,13 @@ public class BibCreator {
         	if (closeBracket != null) {
         		
 					if (tokenStack.peek().GetTokenType() == TokenType.OpenBracket)
-						 throw new FileInvalidException("No value for key");
+						 throw new FileInvalidException(String.format("""
+						 		Error: Detected Empty Field!
+						 		============================
+						 		
+						 		Problem detected with input file: %s
+						 		File is Invalid: Field "%s" is Empty. Processing stopped at this point. Other empty fields may be present as well!
+						 		""", fileName, interimKey));
 					
         		bracketStack.pop();
         		tokenStack.push(closeBracket);
@@ -159,9 +165,14 @@ public class BibCreator {
         		sb.append(nextToken);
         		while  (st.hasMoreTokens()) {
         			tempToken = st.nextToken();
-        			if (tempToken.equals("}")) {
+        			if (tempToken.equals("}") && bracketStack.size() == 2) {
         				break;
         			}
+        			if (tempToken.equals("{"))
+        				bracketStack.add(true);
+        			
+        			if (tempToken.equals("}"))
+        				bracketStack.pop();
         			sb.append(tempToken);
         		}
         		
@@ -217,13 +228,13 @@ public class BibCreator {
         			ArticleMap.get("issn")));
         });
         
-        String[] files = {String.format("IEEE%d.json", number), String.format("ACM%d.json", number), String.format("NJ%d.json", number)};
+        String[] files = {String.format("IEEE%d.json", number + 1), String.format("ACM%d.json", number + 1), String.format("NJ%d.json", number + 1)};
         PrintWriter pw1 = new PrintWriter(files[0]);
         
         for (Article article : listOfArticles) {
 			pw1.append(article.Format(FormatType.IEEE) +  "\n\n");
 		}
-        System.out.println();
+        //System.out.println();
         
         PrintWriter pw2 = new PrintWriter(files[1]);
         
@@ -233,7 +244,7 @@ public class BibCreator {
 			
 		}
         
-        System.out.println();
+        //System.out.println();
         PrintWriter pw3 = new PrintWriter(files[2]);
         
         for (Article article : listOfArticles) {

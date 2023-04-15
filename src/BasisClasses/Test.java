@@ -25,7 +25,7 @@ public class Test {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
-		Scanner scanner = new Scanner(new FileInputStream("Latex2.bib"));
+		Scanner scanner = new Scanner(new FileInputStream("Latex1.bib"));
 		
 		StringBuilder myStringBuiilder = new StringBuilder();
 		
@@ -39,28 +39,28 @@ public class Test {
 		
 		String myString = new String(myStringBuiilder);
 		
-		System.out.println(myString);
+		//System.out.println(myString);
 		
 		
 		  String val = """
-		  		@ARTICLE{
-				8114607, 
-				author={X. Li and X. Wei and W. Zhou}, 
-				journal={IET Circuits, Devices Systems}, 
-				title={Heuristic thermal sensor allocation methods for overheating detection of real microprocessors}, 
-				year={2017}, 
-				volume={11}, 
-				number={6}, 
-				pages={559-567}, 
-				keywords={circuit optimisation;cooling;genetic algorithms;infrared imaging;microprocessor chips;probability;temperature measurement;temperature sensors;chip temperature monitoring;embedded thermal sensors;fabrication fluctuations;genetic algorithm;heuristic method;heuristic thermal sensor allocation methods;hybrid algorithm;infrared thermal imaging techniques;near-optimal thermal sensor allocation solution;oil-based cooling system;on-chip thermal sensor readings;overheating detection probability;real dual-core microprocessor;thermal monitoring}, 
-				doi={10.1049/iet-cds.2016.0529}, 
-				ISSN={1751-858X}, 
-				month={Jan},
-				}""";
+					@ARTICLE{
+					title={Design and Analysis of 2.4 GHz $30~mu text{W}$ CMOS LNAs for Wearable WSN Applications}, 
+					8126859, 
+					author={E. Kargaran and D. Manstretta and R. Castello}, 
+					journal={IEEE Transactions on Circuits and Systems I: Regular Papers}, 
+					pages={891-903}, 
+					keywords={Gain;Impedance;Noise measurement;Receivers;Topology;Transistors;Wireless sensor networks;Ultra low power;WSN;current reuse;gm-boosting;low noise figure;ultra-low voltage}, 
+					doi={10.1109/TCSI.2017.2771940}, 
+					ISSN={1549-8328}, 
+					month={March},
+					year={2018}, 
+					volume={65}, 
+					number={3}, 
+					}""";
 		 
 
         String delim = "{},=\n";
-        StringTokenizer st = new StringTokenizer(myString, delim, true);
+        StringTokenizer st = new StringTokenizer(val, delim, true);
 
         Stack<IToken> tokenStack = new Stack<IToken>();
         Stack<Boolean> bracketStack = new Stack<Boolean>();
@@ -145,9 +145,14 @@ public class Test {
         		sb.append(nextToken);
         		while  (st.hasMoreTokens()) {
         			tempToken = st.nextToken();
-        			if (tempToken.equals("}")) {
+        			if (tempToken.equals("}") && bracketStack.size() == 2) {
         				break;
         			}
+        			if (tempToken.equals("{"))
+        				bracketStack.add(true);
+        			
+        			if (tempToken.equals("}"))
+        				bracketStack.pop();
         			sb.append(tempToken);
         		}
         		
@@ -177,7 +182,7 @@ public class Test {
         	throw new Exception("Unexpected token: " + nextToken);
         }
         
-        for (Boolean boolean1 : bracketStack) {
+        /*for (Boolean boolean1 : bracketStack) {
 			System.out.println(boolean1);
 		}
         
@@ -185,10 +190,10 @@ public class Test {
         	System.out.println(token.GetTokenType() + " \t " + token.GetValue());
 			
 		} 
-        
+        */
         List<Article> listOfArticles = new ArrayList<Article>();
         
-        rawData.forEach((key, value) -> {
+        /*rawData.forEach((key, value) -> {
         	System.out.println(key);
         	value.forEach((key1, value1) -> {
         		System.out.println(key1 + " " + value1);
@@ -196,7 +201,7 @@ public class Test {
         	});
         	System.out.println();
         });
-        
+        */
         System.out.println();
         
         rawData.forEach((key, value) -> { 
